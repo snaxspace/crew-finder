@@ -31,8 +31,7 @@
   .primary{background:#d7000f;color:#fff;font-weight:800}
   .primary:active{background:#b0000c}
   .disabled{background:#f2f2f2;color:#999;border:1px solid #e5e5e5;cursor:not-allowed}
-  .footer{position:fixed;bottom:0;left:0;right:0;padding:10px 12px;border-top:1px solid var(--border);background:#fff;display:flex;gap:6px}
-  .footer button{flex:1}
+  .footer{position:fixed;bottom:0;left:0;right:0;padding:10px 12px;border-top:1px solid var(--border);background:#fff;display:none;}
   #csvFile{display:none}
 </style>
 </head>
@@ -54,6 +53,8 @@
 </main>
 
 <footer class="footer">
+  <button class="ghost" id="importCsv">Import CSV</button>
+  <button class="ghost" id="help">Help</button>
   <input id="csvFile" type="file" accept=".csv,text/csv" />
 </footer>
 
@@ -80,7 +81,6 @@ const tokenize = (s)=> norm(s).split(/[^a-z0-9/ก-๙]+/).filter(Boolean);
 const haystack = (c)=> [c.batch,c.name,c.nickname,c.staff_id,c.rank,c.line_id,c.notes].map(norm).join(" ");
 const openLineById = (lineId)=>{ const id=(lineId||"").trim(); if(!id) return; location.href = `line://ti/p/~${encodeURIComponent(id)}`; };
 
-// Robust CSV parser
 function parseCSV(text){
   const rows=[]; let i=0, cur="", inQ=false, row=[];
   const pushCell=()=>{ row.push(cur); cur=""; };
@@ -147,11 +147,6 @@ function renderChips(){
   $chips.innerHTML = "";
   batches.slice(0,16).forEach(b=>{ const d=document.createElement("div"); d.className="chip"; d.textContent=b; d.onclick=()=>{ $q.value=b; renderList($q.value.trim()); }; $chips.appendChild(d); });
 }
-
-// Buttons
-$importCsv.onclick = ()=> $csvFile.click();
-$csvFile.onchange = async (e)=>{ const f=e.target.files[0]; if(!f) return; const text=await f.text(); const parsed=csvToCrew(text); if(parsed.length){ CREW=parsed; renderChips(); renderList($q.value.trim()); alert("CSV loaded."); } };
-$help.onclick = ()=> alert("This build autoloads crew.csv from the repo root. Update the file to refresh."); 
 
 $q.addEventListener("input", ()=> renderList($q.value.trim()));
 
